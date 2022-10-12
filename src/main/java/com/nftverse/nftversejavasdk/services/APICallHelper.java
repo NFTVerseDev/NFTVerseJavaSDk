@@ -3,10 +3,7 @@ package com.nftverse.nftversejavasdk.services;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.nftverse.nftversejavasdk.dto.AppTokenMasterDto;
-import com.nftverse.nftversejavasdk.dto.AssetsDto;
-import com.nftverse.nftversejavasdk.dto.ExternalNftDto;
-import com.nftverse.nftversejavasdk.dto.StatusDto;
+import com.nftverse.nftversejavasdk.dto.*;
 import com.nftverse.nftversejavasdk.enums.AssetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +53,8 @@ public class APICallHelper {
                     .addHeader("X-App-Token", this.getAppToken())
                     .build(); // defaults to GET
             Response response = client.newCall(request).execute();
-            CompletableFuture<AssetsDto> assetsDtoCompletableFuture = mapper.readValue(response.body().byteStream(), new TypeReference<CompletableFuture<AssetsDto>>() {});
-            return assetsDtoCompletableFuture;
+            AssetsDto assetsDtoFromDb = mapper.readValue(response.body().byteStream(), AssetsDto.class);
+            return CompletableFuture.completedFuture(assetsDtoFromDb);
         } catch (Exception e){
             //log exception;
             logger.error("APICallHelper: error in createUser: " + e.getMessage());
@@ -81,8 +78,8 @@ public class APICallHelper {
                     .addHeader("X-App-Token", this.getAppToken())
                     .build(); // defaults to GET
             Response response = client.newCall(request).execute();
-            CompletableFuture<StatusDto> statusDtoCompletableFuture = mapper.readValue(response.body().byteStream(), new TypeReference<CompletableFuture<StatusDto>>() {});
-            return statusDtoCompletableFuture;
+            StatusDto statusDto = mapper.readValue(response.body().byteStream(), StatusDto.class);
+            return CompletableFuture.completedFuture(statusDto);
         } catch (Exception e){
             //log exception;
             logger.error("APICallHelper: error in createUser: " + e.getMessage());
@@ -90,4 +87,51 @@ public class APICallHelper {
         }
     }
 
+    public AssetsDto getAssetDetails(String externalAssetId, AppTokenMasterDto appTokenMasterDto) throws Exception {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(this.getApiBaseUrl() + "/external/asset/"+externalAssetId)
+                    .addHeader("content-type", "application/json")
+                    .addHeader("X-App-Token", this.getAppToken())
+                    .build(); // defaults to GET
+
+            Response response = client.newCall(request).execute();
+
+            AssetsDto assetsDto = mapper.readValue(response.body().byteStream(), AssetsDto.class);
+            return assetsDto;
+        } catch (Exception e) {
+            //log exception;
+            logger.error("error in getAssetDetails: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public CompletableFuture<UserBlockchainAccountDto> getOrSetupExternalWallet(ExternalUserWalletSetupDto externalUserWalletSetupDto, AppTokenMasterDto appTokenMasterDto) {
+
+
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                OkHttpClient client = new OkHttpClient();
+                Gson gson = new Gson();
+                String json = gson.toJson(externalUserWalletSetupDto);
+                RequestBody body = RequestBody.create(
+                        MediaType.parse("application/json"), json);
+                Request request = new Request.Builder()
+                        .url(this.getApiBaseUrl() + "/external/user/wallet")
+                        .post(body)
+                        .addHeader("content-type", "application/json")
+                        .addHeader("X-App-Token", this.getAppToken())
+                        .build(); // defaults to GET
+                Response response = client.newCall(request).execute();
+                UserBlockchainAccountDto userBlockchainAccountDto = mapper.readValue(response.body().byteStream(), UserBlockchainAccountDto.class);
+                return CompletableFuture.completedFuture(userBlockchainAccountDto);
+            } catch (Exception e){
+                //log exception;
+                logger.error("APICallHelper: error in getOrSetupExternalWallet: " + e.getMessage());
+                return null;
+            }
+    }
 }

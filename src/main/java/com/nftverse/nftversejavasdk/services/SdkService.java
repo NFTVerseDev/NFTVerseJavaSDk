@@ -1,9 +1,6 @@
 package com.nftverse.nftversejavasdk.services;
 
-import com.nftverse.nftversejavasdk.dto.AppTokenMasterDto;
-import com.nftverse.nftversejavasdk.dto.AssetsDto;
-import com.nftverse.nftversejavasdk.dto.ExternalNftDto;
-import com.nftverse.nftversejavasdk.dto.StatusDto;
+import com.nftverse.nftversejavasdk.dto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,5 +23,13 @@ public class SdkService {
 
     public CompletableFuture<StatusDto> mintAndTransferNft(ExternalNftDto externalNftDto, AppTokenMasterDto appTokenMasterDto ) throws Exception {
         return this.apiCallHelper.mintAndTransferNft(externalNftDto,appTokenMasterDto);
+    }
+
+    public AssetsDto getAssetDetails(String externalAssetId, AppTokenMasterDto appTokenMasterDto) throws Exception {
+        return this.apiCallHelper.getAssetDetails(externalAssetId,appTokenMasterDto);
+    }
+
+    public CompletableFuture<UserBlockchainAccountDto> getOrSetupExternalWallet(ExternalUserWalletSetupDto externalUserWalletSetupDto, AppTokenMasterDto appTokenMasterDto) {
+        return this.apiCallHelper.getOrSetupExternalWallet(externalUserWalletSetupDto,appTokenMasterDto);
     }
 }
