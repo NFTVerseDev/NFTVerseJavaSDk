@@ -33,8 +33,8 @@ public class APICallHelper {
         return env.getProperty("blockchainservice.url");
     }
 
-    private String getAuthToken() {
-        return env.getProperty("auth-token");
+    private String getAppToken() {
+        return env.getProperty("blockchainservice.appToken");
     }
 
     public CompletableFuture<AssetsDto> uploadAsset(MultipartFile multipartFile,String type,String externalAssetId,AppTokenMasterDto appTokenMasterDto) throws Exception {
@@ -53,7 +53,7 @@ public class APICallHelper {
                     .url(this.getApiBaseUrl() + "/external/asset/upload")
                     .post(body)
                     .addHeader("content-type", "application/json")
-                    .addHeader("X-App-Token", appTokenMasterDto.getAppToken())
+                    .addHeader("X-App-Token", this.getAppToken())
                     .build(); // defaults to GET
             Response response = client.newCall(request).execute();
             CompletableFuture<AssetsDto> assetsDtoCompletableFuture = mapper.readValue(response.body().byteStream(), new TypeReference<CompletableFuture<AssetsDto>>() {});
@@ -78,7 +78,7 @@ public class APICallHelper {
                     .url(this.getApiBaseUrl() + "/external/nft/mintAndTransfer")
                     .post(body)
                     .addHeader("content-type", "application/json")
-                    .addHeader("X-App-Token", appTokenMasterDto.getAppToken())
+                    .addHeader("X-App-Token", this.getAppToken())
                     .build(); // defaults to GET
             Response response = client.newCall(request).execute();
             CompletableFuture<StatusDto> statusDtoCompletableFuture = mapper.readValue(response.body().byteStream(), new TypeReference<CompletableFuture<StatusDto>>() {});
